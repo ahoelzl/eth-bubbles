@@ -34,9 +34,10 @@ var Bubble = function () {
         this.position = options.position;
         this.velocity = options.velocity;
         this.color = options.color;
-
-        this.shape = new Two.Ellipse(0, 0, 1, 1);
+	this.size = options.size
+        this.shape = new Two.Ellipse(0, 0, this.size, this.size);
         this.updateColor();
+        this.onMouseOver=window.console.log("mouse!");
     }
 
     _createClass(Bubble, [{
@@ -78,11 +79,12 @@ var Screen = function () {
 
     _createClass(Screen, [{
         key: 'spawn',
-        value: function spawn() {
+        value: function spawn(size, color) {
             var bubble = new Bubble({
                 position: new Two.Vector(-this.sizeScale, this.height + this.sizeScale),
                 velocity: new Two.Vector(randomNd(0.8, 1), -randomNd(0.8, 1)).normalize().multiplyScalar(randomNd(0.8, 1.2)),
-                color: 'red'
+                color: color,
+		size: size
             });
             this._bubbles.push(bubble);
             this._shapes.add(bubble.shape);
@@ -292,6 +294,7 @@ var Screen = function () {
     }, {
         key: '_hasCollisionBetween',
         value: function _hasCollisionBetween(position1, position2) {
+            var min_distance = position1.size + position2.size
             if (position1 instanceof Bubble) {
                 position1 = position1.position;
             }
@@ -300,13 +303,31 @@ var Screen = function () {
             }
             var distance = Two.Utils.distanceBetween(position1, position2);
             // Allow overlap if too close, useful when size/speed changed.
-            var ignoreCollisionDistance = 2 * this.velocityScale * this._updateStepMillis / 1000;
-            return distance <= 2 * this.sizeScale && distance > ignoreCollisionDistance;
+            var ignoreCollisionDistance = min_distance * this.velocityScale * this._updateStepMillis / 1000;
+	   //  window.console.log("distance: " + distance + " scale: " + this.sizeScale + " ignore : " + ignoreCollisionDistance + " min-distance: " + min_distance * this.sizeScale);
+            return distance <= min_distance *  this.sizeScale && distance > ignoreCollisionDistance;
         }
     }, {
         key: 'setLastUpdateToNow',
         value: function setLastUpdateToNow() {
             this._lastUpdate = Date.now();
+        }
+    }, 
+ {
+        key: 'show',
+        value: function show(x,y) {
+ //	console.log("pos2 : " + x + " and " + y);
+	    var _iteratorNormalCompletion7 = true;
+            var _didIteratorError7 = false;
+            var _iteratorError7 = undefined;
+	for (var _iterator7 = this._bubbles[Symbol.iterator](), _step7; !(_iteratorNormalCompletion7 = (_step7 = _iterator7.next()).done); _iteratorNormalCompletion7 = true) {
+                    var _bubble = _step7.value;
+//			window.console.log("distance: " + Math.pow(_bubble.position.x - x,2) +  Math.pow( _bubble.position.y - y,2));
+                    if (Math.pow(_bubble.position.x - x,2) +  Math.pow( _bubble.position.y - y,2) < Math.pow(_bubble.size * this.sizeScale,2)) {
+			window.console.log("within a bubble!");
+                       }
+                }
+
         }
     }]);
 
@@ -376,9 +397,17 @@ document.getElementById('remove-bubble').addEventListener('click', function (eve
     bubbles.kill();
 });
 
+
+ document.onmousemove = handleMouseMove;
+    function handleMouseMove(event) {
+bubbles.show(event.pageX, event.pageY);
+}
+
+
+
 function spawnWithInterval(count, interval) {
     if (count > 0) {
-        bubbles.spawn();
+        bubbles.spawn(0.6, 'blue');
         setTimeout(function () {
             return spawnWithInterval(count - 1, interval);
         }, interval);
