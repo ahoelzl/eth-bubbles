@@ -90,7 +90,8 @@ class Screen {
         }
         const colorEntries = [...colorMap.entries()].sort((entry1, entry2) => entry1[1] - entry2[1]);
         const colors = colorEntries.filter(entry => entry[1] === colorEntries[0][1]).map(entry => entry[0]);
-        return colors[randomInteger(colors.length)];
+       // return colors[randomInteger(colors.length)];
+	return colors[1];
     }
 
     kill() {
