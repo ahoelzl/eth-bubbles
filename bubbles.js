@@ -1,5 +1,5 @@
 'use strict';
-
+var web3 = new Web3();
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -405,6 +405,26 @@ bubbles.show(event.pageX, event.pageY);
 
 
 
+spawnWithInterval(7, 1000);
+
+
+
+function getWeb3(callback) {
+  if (typeof window.web3 === 'undefined') {
+    // no web3, use fallback
+    console.error("Please use a web3 browser");
+  } else {
+    // window.web3 == web3 most of the time. Don't override the provided,
+    // web3, just wrap it in your Web3.
+   var myWeb3 =  new Web3(new Web3.providers.HttpProvider("https://ropsten.infura.io/TOKEN"));
+    // the default account doesn't seem to be persisted, copy it to our
+    // new instance
+    myWeb3.eth.defaultAccount = window.web3.eth.defaultAccount;
+
+    callback(myWeb3);
+  }
+}
+
 function spawnWithInterval(count, interval) {
     if (count > 0) {
         bubbles.spawn(0.6, 'blue');
@@ -413,4 +433,29 @@ function spawnWithInterval(count, interval) {
         }, interval);
     }
 }
-spawnWithInterval(7, 1000);
+
+
+function startApp(web3) {
+
+console.log(web3)
+console.log(web3.version.network)
+
+var MetaCoin = web3.eth.contract(JSON.parse("[{\"constant\":true,\"inputs\":[],\"name\":\"bettedBlue\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"betIndex\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"bettedRed\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"nextBlock\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"type\":\"function\"},{\"constant\":false,\"inputs\":[],\"name\":\"solve\",\"outputs\":[],\"payable\":true,\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"amountBlue\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"amountRed\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"add\",\"type\":\"uint8\"},{\"name\":\"bet\",\"type\":\"uint8\"}],\"name\":\"bet\",\"outputs\":[],\"payable\":true,\"type\":\"function\"},{\"inputs\":[],\"payable\":false,\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"name\":\"_from\",\"type\":\"address\"},{\"indexed\":false,\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"Deposit\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"name\":\"message\",\"type\":\"string\"},{\"indexed\":false,\"name\":\"number\",\"type\":\"uint256\"}],\"name\":\"Logging\",\"type\":\"event\"}]"));
+
+
+var mitaCoin = MetaCoin.at('0x14dBbb35277d0bA37BD552d0E7Bd80D9413a9746');
+console.log(mitaCoin);
+
+
+console.log("bettedRed: " + mitaCoin.bettedRed());
+}
+
+
+window.addEventListener('load', function() {
+  getWeb3(startApp);
+});
+
+
+
+
+
